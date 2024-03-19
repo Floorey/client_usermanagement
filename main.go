@@ -90,6 +90,17 @@ func createUser(reader *bufio.Reader) {
 	}
 	defer resp.Body.Close()
 
+	// Check if the response is successful
+	if resp.StatusCode != http.StatusCreated {
+		// Check if rate limit exceeded
+		if resp.StatusCode == http.StatusTooManyRequests {
+			fmt.Println("Rate limit exceeded. Please try again later.")
+		} else {
+			fmt.Println("Error creating user. Status code:", resp.StatusCode)
+		}
+		return
+	}
+
 	fmt.Println("User created successfully.")
 }
 
@@ -114,7 +125,12 @@ func getUser(reader *bufio.Reader) {
 
 	// Check if the status code is OK
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error retrieving user. Status code:", resp.StatusCode)
+		// Check if rate limit exceeded
+		if resp.StatusCode == http.StatusTooManyRequests {
+			fmt.Println("Rate limit exceeded. Please try again later.")
+		} else {
+			fmt.Println("Error retrieving user. Status code:", resp.StatusCode)
+		}
 		return
 	}
 
